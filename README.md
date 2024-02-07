@@ -1,3 +1,9 @@
+# Deploy
+
+```shell
+npm run deploy
+```
+
 # Instructions:
 
 Adjust the `scaling` variable in `index.html` according to your screens width in pixels and width in centimeters.
