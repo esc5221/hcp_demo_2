@@ -56,10 +56,9 @@
 			};
 			console.log(middleEyePosition);
 			
-			const scale = 9;
+			const scale = 11;
 			perspectiveParams.x = (-middleEyePosition.x + centerPosition.x) / scale;
 			perspectiveParams.y = (-middleEyePosition.y + centerPosition.y) / scale;
-			console.log(perspectiveParams.x, perspectiveParams.y);
 			onParamsChange();
 		})
 	}
@@ -103,13 +102,13 @@
 	scene.add( box4 );
 
 	// add a window frame
-	var windowFrameGeometry = new THREE.PlaneGeometry(200, 200, 1, 1);
-	var windowMaterial = new THREE.MeshBasicMaterial({wireframe: true, color: new THREE.Color('black')});
-	var windowMesh = new THREE.Mesh(windowFrameGeometry, windowMaterial);
-	scene.add(windowMesh);
+	// var windowFrameGeometry = new THREE.PlaneGeometry(200, 200, 1, 1);
+	// var windowMaterial = new THREE.MeshBasicMaterial({wireframe: true, color: new THREE.Color('black')});
+	// var windowMesh = new THREE.Mesh(windowFrameGeometry, windowMaterial);
+	// scene.add(windowMesh);
 
-	const axesHelper = new THREE.AxesHelper( 100 );
-    scene.add( axesHelper );
+	//const axesHelper = new THREE.AxesHelper( 100 );
+    // scene.add( axesHelper );
 
 	// note: 4x4 checkboard pattern scaled so that each square is 25 by 25 pixels.
 	var ROOM_DEPTH = SCREEN_WIDTH;

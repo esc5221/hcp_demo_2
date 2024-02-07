@@ -1,0 +1,9 @@
+{
+  "homepage": "https://esc5221.github.io/hcp_demo_2",
+  "scripts": {
+    "deploy": "gh-pages -d ."
+  },
+  "devDependencies": {
+    "gh-pages": "^6.1.1"
+  }
+}
