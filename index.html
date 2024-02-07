@@ -56,7 +56,7 @@
 			};
 			console.log(middleEyePosition);
 			
-			const scale = 11;
+			const scale = 12;
 			perspectiveParams.x = (-middleEyePosition.x + centerPosition.x) / scale;
 			perspectiveParams.y = (-middleEyePosition.y + centerPosition.y) / scale;
 			onParamsChange();
@@ -66,91 +66,75 @@
 	//////////////////////////////////////////////////////////////////////////////////
 	//		add an object in the scene
 	//////////////////////////////////////////////////////////////////////////////////
+	renderer.shadowMap.enabled = true;
+	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-	var pointLight = new THREE.PointLight(0xffffff, 1, 1000);
-	pointLight.position.set(0, 50, 0);
+	//////////////////////////////////////////////////////////////////////////////////
+	//      Add lighting
+	//////////////////////////////////////////////////////////////////////////////////
+
+	var pointLight = new THREE.PointLight(0xffffff, 1.5, 1500);
+	pointLight.position.set(0, 100, 100);
+	pointLight.castShadow = true;
 	scene.add(pointLight);
 
-	//
+	var ambientLight = new THREE.AmbientLight(0x404040); // soft white light
+	scene.add(ambientLight);
 
-	var geometry = new THREE.BoxGeometry( 50, 50, 50, 1, 1, 1 );
-	var material = new THREE.MeshNormalMaterial(); 
+	//////////////////////////////////////////////////////////////////////////////////
+	//      Add objects in the scene
+	//////////////////////////////////////////////////////////////////////////////////
 
-	var box1 = new THREE.Mesh( geometry, material );
-	box1.position.x = 0;
-	box1.position.y = 25;
-	box1.position.z = -100;
+	var geometry = new THREE.BoxGeometry(50, 50, 50, 1, 1, 1);
+	var material = new THREE.MeshPhongMaterial(); // Changed to MeshPhongMaterial
 
-	var box2 = new THREE.Mesh( geometry, material );
-	box2.position.x = 200;
-	box2.position.y = 25;
-	box2.position.z = 100;
+	function createBox(x, y, z) {
+		var box = new THREE.Mesh(geometry, material);
+		box.position.set(x, y, z);
+		box.castShadow = true;
+		box.receiveShadow = true;
+		scene.add(box);
+	}
 
-	var box3 = new THREE.Mesh( geometry, material );
-	box3.position.x = -200;
-	box3.position.y = 25;
-	box3.position.z = 0;
+	createBox(0, 25, -100);
+	createBox(200, 25, 100);
+	createBox(-200, 25, 0);
+	createBox(-300, 25, -500);
 
-	var box4 = new THREE.Mesh( geometry, material );
-	box4.position.x = -300;
-	box4.position.y = 25;
-	box4.position.z = -500;
+	//////////////////////////////////////////////////////////////////////////////////
+	//      Add room structure
+	//////////////////////////////////////////////////////////////////////////////////
 
-	scene.add( box1 );
-	scene.add( box2 );
-	scene.add( box3 );
-	scene.add( box4 );
+	const ROOM_DEPTH = SCREEN_WIDTH;
 
-	// add a window frame
-	// var windowFrameGeometry = new THREE.PlaneGeometry(200, 200, 1, 1);
-	// var windowMaterial = new THREE.MeshBasicMaterial({wireframe: true, color: new THREE.Color('black')});
-	// var windowMesh = new THREE.Mesh(windowFrameGeometry, windowMaterial);
-	// scene.add(windowMesh);
+	const floorTexture = new THREE.TextureLoader().load('https://threejs.org/examples/textures/terrain/grasslight-big.jpg');
+	floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
+	floorTexture.repeat.set(10, 10);
 
-	//const axesHelper = new THREE.AxesHelper( 100 );
-    // scene.add( axesHelper );
+	var floorMaterial = new THREE.MeshPhongMaterial({ map: floorTexture, side: THREE.DoubleSide }); // Changed to MeshPhongMaterial
 
-	// note: 4x4 checkboard pattern scaled so that each square is 25 by 25 pixels.
-	var ROOM_DEPTH = SCREEN_WIDTH;
-	const floorTexture = new THREE.TextureLoader().load( 'https://threejs.org/examples/textures/terrain/grasslight-big.jpg' );
-	floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
-	floorTexture.repeat.set( 10, 10 );
-	// DoubleSide: render texture on both sides of mesh
-	var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
-	
 	var floorGeometry = new THREE.PlaneGeometry(SCREEN_WIDTH, ROOM_DEPTH, 1, 1);
 	var wallGeometry = new THREE.PlaneGeometry(SCREEN_HEIGHT, ROOM_DEPTH, 1, 1);
 	var backWallGeometry = new THREE.PlaneGeometry(SCREEN_WIDTH, SCREEN_HEIGHT, 1, 1);
 
-	var floor = new THREE.Mesh(floorGeometry, floorMaterial);
-	floor.position.y = -SCREEN_HEIGHT/2;
-	floor.position.z = -ROOM_DEPTH/2;
-	floor.rotation.x = Math.PI / 2;
-	scene.add(floor);
+	function createPlane(geometry, position, rotation) {
+		var plane = new THREE.Mesh(geometry, floorMaterial);
+		plane.position.set(position.x, position.y, position.z);
+		plane.rotation.set(rotation.x, rotation.y, rotation.z);
+		plane.receiveShadow = true;
+		scene.add(plane);
+	}
 
-	var leftWall = new THREE.Mesh(wallGeometry, floorMaterial);
-	leftWall.position.x = -SCREEN_WIDTH/2;
-	leftWall.position.z = -ROOM_DEPTH/2;
-	leftWall.rotation.z = Math.PI / 2;
-	leftWall.rotation.y = Math.PI / 2;
-	scene.add(leftWall);
+	createPlane(floorGeometry, {x: 0, y: -SCREEN_HEIGHT/2, z: -ROOM_DEPTH/2}, {x: Math.PI/2, y: 0, z: 0});
+	createPlane(wallGeometry, {x: -SCREEN_WIDTH/2, y: 0, z: -ROOM_DEPTH/2}, {x: 0, y: Math.PI/2, z: Math.PI/2});
+	createPlane(wallGeometry, {x: SCREEN_WIDTH/2, y: 0, z: -ROOM_DEPTH/2}, {x: 0, y: Math.PI/2, z: -Math.PI/2});
+	createPlane(floorGeometry, {x: 0, y: SCREEN_HEIGHT/2, z: -ROOM_DEPTH/2}, {x: -Math.PI/2, y: 0, z: 0});
+	createPlane(backWallGeometry, {x: 0, y: 0, z: -ROOM_DEPTH/2}, {x: 0, y: 0, z: 0});
 
-	var rightWall = new THREE.Mesh(wallGeometry, floorMaterial);
-	rightWall.position.x = SCREEN_WIDTH/2;
-	rightWall.position.z = -ROOM_DEPTH/2;
-	rightWall.rotation.z = -Math.PI / 2;
-	rightWall.rotation.y = Math.PI / 2;
-	scene.add(rightWall);
+	//////////////////////////////////////////////////////////////////////////////////
+	//      Render loop
+	//////////////////////////////////////////////////////////////////////////////////
 
-	var ceiling = new THREE.Mesh(floorGeometry, floorMaterial);
-	ceiling.position.y = SCREEN_HEIGHT / 2;
-	ceiling.position.z = -ROOM_DEPTH/2;
-	ceiling.rotation.x = -Math.PI/2;
-	scene.add(ceiling);
-
-	var backWall = new THREE.Mesh(backWallGeometry, floorMaterial);
-	backWall.position.z = -ROOM_DEPTH/2;
-	scene.add(backWall);
 
 	function onParamsChange() {
 		var x = perspectiveParams.x;
