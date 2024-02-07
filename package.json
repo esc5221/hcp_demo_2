@@ -1,5 +1,5 @@
 {
-  "homepage": "https://username.github.io/repository",
+  "homepage": "https://esc5221.github.io/hcp_demo_2",
   "scripts": {
     "deploy": "gh-pages -d ."
   },
